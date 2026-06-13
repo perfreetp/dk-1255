@@ -2,14 +2,28 @@ import React, { useState } from 'react';
 import { View, Text, Image, Input } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
-import { FamilyMember } from '../../types';
+import { FamilyMember, FamilyGroup } from '../../types';
 import { useApp } from '../../store/AppContext';
 
 const MembersPage: React.FC = () => {
-  const { members, events, addMember } = useApp();
-  const [showAddModal, setShowAddModal] = useState(false);
+  const { members, events, reminders, addMember, addEvent } = useApp();
+  const [showAddGroupModal, setShowAddGroupModal] = useState(false);
+  const [showAddMemberModal, setShowAddMemberModal] = useState(false);
+  const [newGroupName, setNewGroupName] = useState('');
   const [newMemberName, setNewMemberName] = useState('');
   const [newMemberBirthday, setNewMemberBirthday] = useState('');
+  const [selectedAvatar, setSelectedAvatar] = useState('');
+
+  const avatarOptions = [
+    'https://picsum.photos/id/64/200/200',
+    'https://picsum.photos/id/177/200/200',
+    'https://picsum.photos/id/338/200/200',
+    'https://picsum.photos/id/91/200/200',
+    'https://picsum.photos/id/1027/200/200',
+    'https://picsum.photos/id/292/200/200',
+    'https://picsum.photos/id/312/200/200',
+    'https://picsum.photos/id/401/200/200'
+  ];
 
   const memberColors = [
     '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4',
@@ -55,11 +69,22 @@ const MembersPage: React.FC = () => {
     return members.filter(m => m.birthday).length;
   };
 
-  const handleMemberClick = (member: FamilyMember) => {
+  const handleAddGroup = () => {
+    if (!newGroupName.trim()) {
+      Taro.showToast({
+        title: '请输入家庭群名称',
+        icon: 'none'
+      });
+      return;
+    }
+
     Taro.showToast({
-      title: '成员详情开发中',
-      icon: 'none'
+      title: `已创建"${newGroupName}"家庭群`,
+      icon: 'success'
     });
+
+    setShowAddGroupModal(false);
+    setNewGroupName('');
   };
 
   const handleAddMember = () => {
@@ -72,19 +97,39 @@ const MembersPage: React.FC = () => {
     }
 
     const randomColor = memberColors[Math.floor(Math.random() * memberColors.length)];
+    const avatar = selectedAvatar || avatarOptions[Math.floor(Math.random() * avatarOptions.length)];
+
     const newMember: FamilyMember = {
       id: `member-${Date.now()}`,
       name: newMemberName.trim(),
-      avatar: `https://picsum.photos/200/200?random=${Date.now()}`,
+      avatar: avatar,
       color: randomColor,
       role: 'member',
       birthday: newMemberBirthday || undefined
     };
 
     addMember(newMember);
-    setShowAddModal(false);
+
+    if (newMemberBirthday) {
+      const birthdayEvent: any = {
+        id: `event-birthday-${Date.now()}`,
+        title: `${newMemberName}的生日`,
+        date: newMemberBirthday,
+        memberIds: [newMember.id],
+        color: '#FF6B6B',
+        category: 'birthday',
+        status: 'pending',
+        reminder: { enabled: true, minutes: 1440 },
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      addEvent(birthdayEvent);
+    }
+
+    setShowAddMemberModal(false);
     setNewMemberName('');
     setNewMemberBirthday('');
+    setSelectedAvatar('');
 
     Taro.showToast({
       title: '成员添加成功',
@@ -109,8 +154,13 @@ const MembersPage: React.FC = () => {
             <Text className={styles.groupName}>幸福一家</Text>
             <Text className={styles.memberCount}>共 {members.length} 位成员</Text>
           </View>
-          <View className={styles.addBtn} onClick={() => setShowAddModal(true)}>
-            + 添加成员
+          <View className={styles.headerActions}>
+            <View className={styles.addBtn} onClick={() => setShowAddGroupModal(true)}>
+              新建群组
+            </View>
+            <View className={styles.addBtn} onClick={() => setShowAddMemberModal(true)}>
+              + 添加成员
+            </View>
           </View>
         </View>
 
@@ -136,7 +186,6 @@ const MembersPage: React.FC = () => {
             key={member.id}
             className={styles.memberCard}
             style={{ '--member-color': member.color } as React.CSSProperties}
-            onClick={() => handleMemberClick(member)}
           >
             <View className={styles.avatarWrapper}>
               <Image src={member.avatar} className={styles.avatar} />
@@ -165,7 +214,7 @@ const MembersPage: React.FC = () => {
           </View>
         ))}
 
-        <View className={styles.addMemberCard} onClick={() => setShowAddModal(true)}>
+        <View className={styles.addMemberCard} onClick={() => setShowAddMemberModal(true)}>
           <Text className={styles.addIcon}>+</Text>
           <Text className={styles.addText}>添加新成员</Text>
         </View>
@@ -194,10 +243,52 @@ const MembersPage: React.FC = () => {
         </View>
       )}
 
-      {showAddModal && (
+      {showAddGroupModal && (
+        <View className={styles.modal}>
+          <View className={styles.modalContent}>
+            <Text className={styles.modalTitle}>创建家庭群</Text>
+
+            <View className={styles.formGroup}>
+              <Text className={styles.label}>家庭群名称 *</Text>
+              <Input
+                className={styles.input}
+                placeholder="请输入家庭群名称"
+                value={newGroupName}
+                onInput={(e) => setNewGroupName(e.detail.value)}
+              />
+            </View>
+
+            <View className={styles.modalButtons}>
+              <View className={styles.cancelBtn} onClick={() => setShowAddGroupModal(false)}>
+                取消
+              </View>
+              <View className={styles.confirmBtn} onClick={handleAddGroup}>
+                创建
+              </View>
+            </View>
+          </View>
+        </View>
+      )}
+
+      {showAddMemberModal && (
         <View className={styles.modal}>
           <View className={styles.modalContent}>
             <Text className={styles.modalTitle}>添加家庭成员</Text>
+
+            <View className={styles.formGroup}>
+              <Text className={styles.label}>选择头像</Text>
+              <View className={styles.avatarGrid}>
+                {avatarOptions.map((avatar, index) => (
+                  <View
+                    key={index}
+                    className={`${styles.avatarOption} ${selectedAvatar === avatar ? styles.selected : ''}`}
+                    onClick={() => setSelectedAvatar(avatar)}
+                  >
+                    <Image src={avatar} className={styles.avatarOptionImg} />
+                  </View>
+                ))}
+              </View>
+            </View>
 
             <View className={styles.formGroup}>
               <Text className={styles.label}>成员称呼 *</Text>
@@ -221,7 +312,7 @@ const MembersPage: React.FC = () => {
             </View>
 
             <View className={styles.modalButtons}>
-              <View className={styles.cancelBtn} onClick={() => setShowAddModal(false)}>
+              <View className={styles.cancelBtn} onClick={() => setShowAddMemberModal(false)}>
                 取消
               </View>
               <View className={styles.confirmBtn} onClick={handleAddMember}>

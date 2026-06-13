@@ -15,8 +15,7 @@ export default defineAppConfig({
     backgroundTextStyle: 'light',
     navigationBarBackgroundColor: '#FFFFFF',
     navigationBarTitleText: '家庭日历',
-    navigationBarTextStyle: 'black',
-    navigationStyle: 'custom'
+    navigationBarTextStyle: 'black'
   },
   tabBar: {
     color: '#7F8C8D',
