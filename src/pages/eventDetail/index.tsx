@@ -2,22 +2,22 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
-import { CalendarEvent, FamilyMember } from '../../types';
-import { mockEvents, mockMembers } from '../../data/mockData';
+import { CalendarEvent } from '../../types';
+import { useApp } from '../../store/AppContext';
 
 const EventDetailPage: React.FC = () => {
-  const [event, setEvent] = useState<CalendarEvent | null>(null);
-  const [members] = useState<FamilyMember[]>(mockMembers);
+  const { events, members, updateEvent, toggleEventComplete } = useApp();
+  const [currentEvent, setCurrentEvent] = useState<CalendarEvent | null>(null);
 
   useEffect(() => {
     const eventId = Taro.getCurrentInstance().router?.params.id;
     if (eventId) {
-      const foundEvent = mockEvents.find(e => e.id === eventId);
-      setEvent(foundEvent || null);
+      const foundEvent = events.find(e => e.id === eventId);
+      setCurrentEvent(foundEvent || null);
     }
-  }, []);
+  }, [events]);
 
-  const getMemberById = (id: string): FamilyMember | undefined => {
+  const getMemberById = (id: string) => {
     return members.find(m => m.id === id);
   };
 
@@ -40,28 +40,30 @@ const EventDetailPage: React.FC = () => {
   };
 
   const handleShare = () => {
+    if (!currentEvent) return;
+    const eventData = encodeURIComponent(JSON.stringify(currentEvent));
     Taro.navigateTo({
-      url: '/pages/shareConfirm/index'
-    });
-  };
-
-  const handleEdit = () => {
-    Taro.switchTab({
-      url: '/pages/event/index'
+      url: `/pages/shareConfirm/index?event=${eventData}`
     });
   };
 
   const handleToggleChecklist = (itemId: string) => {
-    if (!event) return;
-    setEvent({
-      ...event,
-      checklist: event.checklist?.map(item =>
-        item.id === itemId ? { ...item, completed: !item.completed } : item
-      )
-    });
+    if (!currentEvent) return;
+    const updatedChecklist = currentEvent.checklist?.map(item =>
+      item.id === itemId ? { ...item, completed: !item.completed } : item
+    );
+    updateEvent(currentEvent.id, { checklist: updatedChecklist });
+    setCurrentEvent(prev => prev ? { ...prev, checklist: updatedChecklist } : null);
   };
 
-  if (!event) {
+  const handleToggleComplete = () => {
+    if (!currentEvent) return;
+    const newStatus = currentEvent.status === 'completed' ? 'pending' : 'completed';
+    updateEvent(currentEvent.id, { status: newStatus });
+    setCurrentEvent(prev => prev ? { ...prev, status: newStatus } : null);
+  };
+
+  if (!currentEvent) {
     return (
       <View className={styles.container}>
         <View className={styles.content}>
@@ -78,18 +80,18 @@ const EventDetailPage: React.FC = () => {
       <View
         className={styles.header}
         style={{
-          '--event-color': event.color,
-          '--event-color-light': getLightenColor(event.color)
+          '--event-color': currentEvent.color,
+          '--event-color-light': getLightenColor(currentEvent.color)
         } as React.CSSProperties}
       >
         <View className={styles.backBtn} onClick={() => Taro.navigateBack()}>
           ←
         </View>
-        <Text className={styles.eventCategory}>{getCategoryLabel(event.category)}</Text>
-        <Text className={styles.eventTitle}>{event.title}</Text>
+        <Text className={styles.eventCategory}>{getCategoryLabel(currentEvent.category)}</Text>
+        <Text className={styles.eventTitle}>{currentEvent.title}</Text>
         <Text className={styles.eventTime}>
-          📅 {event.date}
-          {event.startTime && ` ${event.startTime}${event.endTime ? `-${event.endTime}` : ''}`}
+          📅 {currentEvent.date}
+          {currentEvent.startTime && ` ${currentEvent.startTime}${currentEvent.endTime ? `-${currentEvent.endTime}` : ''}`}
         </Text>
       </View>
 
@@ -97,56 +99,72 @@ const EventDetailPage: React.FC = () => {
         <View className={styles.card}>
           <Text className={styles.cardTitle}>📝 基本信息</Text>
 
-          {event.description && (
+          {currentEvent.description && (
             <View className={styles.infoRow}>
               <Text className={styles.infoIcon}>📄</Text>
               <View className={styles.infoContent}>
                 <Text className={styles.infoLabel}>描述</Text>
-                <Text className={styles.infoValue}>{event.description}</Text>
+                <Text className={styles.infoValue}>{currentEvent.description}</Text>
               </View>
             </View>
           )}
 
-          {event.location && (
+          {currentEvent.location && (
             <View className={styles.infoRow}>
               <Text className={styles.infoIcon}>📍</Text>
               <View className={styles.infoContent}>
                 <Text className={styles.infoLabel}>地点</Text>
-                <Text className={styles.infoValue}>{event.location}</Text>
+                <Text className={styles.infoValue}>{currentEvent.location}</Text>
               </View>
             </View>
           )}
 
-          {event.reminder?.enabled && (
+          {currentEvent.reminder?.enabled && (
             <View className={styles.infoRow}>
               <Text className={styles.infoIcon}>⏰</Text>
               <View className={styles.infoContent}>
                 <Text className={styles.infoLabel}>提醒</Text>
                 <Text className={styles.infoValue}>
-                  提前 {event.reminder.minutes >= 60 ? `${event.reminder.minutes / 60}小时` : `${event.reminder.minutes}分钟`}
+                  提前 {currentEvent.reminder.minutes >= 60 ? `${currentEvent.reminder.minutes / 60}小时` : `${currentEvent.reminder.minutes}分钟`}
                 </Text>
               </View>
             </View>
           )}
 
-          {event.repeatRule && (
+          {currentEvent.repeatRule && (
             <View className={styles.infoRow}>
               <Text className={styles.infoIcon}>🔄</Text>
               <View className={styles.infoContent}>
                 <Text className={styles.infoLabel}>重复</Text>
                 <Text className={styles.infoValue}>
-                  {event.repeatRule.type === 'daily' ? '每天' :
-                   event.repeatRule.type === 'weekly' ? '每周' :
-                   event.repeatRule.type === 'monthly' ? '每月' : '每年'}
+                  {currentEvent.repeatRule.type === 'daily' ? '每天' :
+                   currentEvent.repeatRule.type === 'weekly' ? '每周' :
+                   currentEvent.repeatRule.type === 'monthly' ? '每月' : '每年'}
                 </Text>
               </View>
             </View>
           )}
+
+          <View className={styles.infoRow}>
+            <Text className={styles.infoIcon}>✓</Text>
+            <View className={styles.infoContent}>
+              <Text className={styles.infoLabel}>状态</Text>
+              <Text className={styles.infoValue}>
+                {currentEvent.status === 'completed' ? '已完成' : '未完成'}
+              </Text>
+            </View>
+            <View
+              className={styles.toggleBtn}
+              onClick={handleToggleComplete}
+            >
+              {currentEvent.status === 'completed' ? '取消完成' : '标记完成'}
+            </View>
+          </View>
         </View>
 
         <View className={styles.card}>
           <Text className={styles.cardTitle}>👥 参与成员</Text>
-          {event.memberIds.map((memberId) => {
+          {currentEvent.memberIds.map((memberId) => {
             const member = getMemberById(memberId);
             if (!member) return null;
             return (
@@ -165,13 +183,16 @@ const EventDetailPage: React.FC = () => {
               </View>
             );
           })}
+          {currentEvent.memberIds.length === 0 && (
+            <Text className={styles.emptyText}>暂无参与成员</Text>
+          )}
         </View>
 
-        {event.checklist && event.checklist.length > 0 && (
+        {currentEvent.checklist && currentEvent.checklist.length > 0 && (
           <View className={styles.card}>
             <Text className={styles.cardTitle}>✅ 待办清单</Text>
             <View className={styles.checklistSection}>
-              {event.checklist.map((item) => (
+              {currentEvent.checklist.map((item) => (
                 <View key={item.id} className={styles.checklistItem}>
                   <View
                     className={`${styles.checkbox} ${item.completed ? styles.checked : ''}`}
@@ -188,11 +209,11 @@ const EventDetailPage: React.FC = () => {
           </View>
         )}
 
-        {event.photos && event.photos.length > 0 && (
+        {currentEvent.photos && currentEvent.photos.length > 0 && (
           <View className={styles.card}>
             <Text className={styles.cardTitle}>📷 相关照片</Text>
             <View className={styles.photoGrid}>
-              {event.photos.map((photo, index) => (
+              {currentEvent.photos.map((photo, index) => (
                 <View key={index} className={styles.photoItem}>
                   <Image src={photo} className={styles.photo} mode="aspectFill" />
                 </View>
@@ -205,7 +226,11 @@ const EventDetailPage: React.FC = () => {
           <View className={styles.shareBtn} onClick={handleShare}>
             转发给亲友
           </View>
-          <View className={styles.editBtn} onClick={handleEdit}>
+          <View className={styles.editBtn} onClick={() => {
+            Taro.switchTab({
+              url: '/pages/event/index'
+            });
+          }}>
             编辑事件
           </View>
         </View>

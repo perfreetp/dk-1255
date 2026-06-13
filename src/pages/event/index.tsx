@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, Input, Textarea, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
-import { FamilyMember, EventCategory, RepeatRule, ChecklistItem } from '../../types';
-import { mockMembers } from '../../data/mockData';
+import { EventCategory, RepeatRule, ChecklistItem, CalendarEvent } from '../../types';
+import { useApp } from '../../store/AppContext';
 
 const EventPage: React.FC = () => {
+  const { addEvent, members } = useApp();
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState('');
@@ -20,8 +21,6 @@ const EventPage: React.FC = () => {
   const [photos, setPhotos] = useState<string[]>([]);
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
   const [newChecklistItem, setNewChecklistItem] = useState('');
-
-  const members: FamilyMember[] = mockMembers;
 
   const categories = [
     { key: 'pickup', icon: '🚗', label: '接送' },
@@ -48,6 +47,20 @@ const EventPage: React.FC = () => {
     { value: 180, label: '提前3小时' },
     { value: 1440, label: '提前1天' }
   ];
+
+  const getCategoryColor = (cat: EventCategory): string => {
+    const colors: Record<string, string> = {
+      pickup: '#45B7D1',
+      medical: '#E74C3C',
+      payment: '#F39C12',
+      birthday: '#FF6B6B',
+      anniversary: '#DDA0DD',
+      meeting: '#3498DB',
+      travel: '#2ECC71',
+      other: '#95A5A6'
+    };
+    return colors[cat] || colors.other;
+  };
 
   const handleMemberToggle = (memberId: string) => {
     setSelectedMembers(prev =>
@@ -119,6 +132,34 @@ const EventPage: React.FC = () => {
       return;
     }
 
+    const newEvent: CalendarEvent = {
+      id: `event-${Date.now()}`,
+      title: title.trim(),
+      description: description.trim(),
+      date,
+      startTime: startTime || undefined,
+      endTime: endTime || undefined,
+      location: location.trim() || undefined,
+      memberIds: selectedMembers,
+      color: getCategoryColor(category),
+      category,
+      status: 'pending',
+      repeatRule: repeatType ? {
+        type: repeatType,
+        interval: 1
+      } : undefined,
+      reminder: reminderEnabled ? {
+        enabled: true,
+        minutes: reminderMinutes
+      } : undefined,
+      photos: photos.length > 0 ? photos : undefined,
+      checklist: checklist.length > 0 ? checklist : undefined,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    addEvent(newEvent);
+
     Taro.showToast({
       title: '事件已保存',
       icon: 'success'
@@ -132,9 +173,43 @@ const EventPage: React.FC = () => {
   };
 
   const handleShare = () => {
-    Taro.showToast({
-      title: '分享功能开发中',
-      icon: 'none'
+    if (!title.trim()) {
+      Taro.showToast({
+        title: '请先填写标题',
+        icon: 'none'
+      });
+      return;
+    }
+
+    const tempEvent: CalendarEvent = {
+      id: `temp-event-${Date.now()}`,
+      title: title.trim(),
+      description: description.trim(),
+      date,
+      startTime: startTime || undefined,
+      endTime: endTime || undefined,
+      location: location.trim() || undefined,
+      memberIds: selectedMembers,
+      color: getCategoryColor(category),
+      category,
+      status: 'pending',
+      repeatRule: repeatType ? {
+        type: repeatType,
+        interval: 1
+      } : undefined,
+      reminder: reminderEnabled ? {
+        enabled: true,
+        minutes: reminderMinutes
+      } : undefined,
+      photos: photos.length > 0 ? photos : undefined,
+      checklist: checklist.length > 0 ? checklist : undefined,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    const eventData = encodeURIComponent(JSON.stringify(tempEvent));
+    Taro.navigateTo({
+      url: `/pages/shareConfirm/index?event=${eventData}`
     });
   };
 

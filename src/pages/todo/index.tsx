@@ -2,12 +2,11 @@ import React, { useState, useMemo } from 'react';
 import { View, Text, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
-import { CalendarEvent, FamilyMember } from '../../types';
-import { mockEvents, mockMembers } from '../../data/mockData';
+import { CalendarEvent } from '../../types';
+import { useApp } from '../../store/AppContext';
 
 const TodoPage: React.FC = () => {
-  const [events] = useState<CalendarEvent[]>(mockEvents);
-  const [members] = useState<FamilyMember[]>(mockMembers);
+  const { events, members, toggleEventComplete } = useApp();
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
 
   const getWeekDays = () => {
@@ -30,7 +29,6 @@ const TodoPage: React.FC = () => {
   };
 
   const weekDays = getWeekDays();
-
   const todayDateStr = weekDays[selectedDayIndex].dateStr;
 
   const todayEvents = useMemo(() => {
@@ -40,15 +38,13 @@ const TodoPage: React.FC = () => {
     });
   }, [events, todayDateStr]);
 
-  const getMemberById = (id: string): FamilyMember | undefined => {
+  const getMemberById = (id: string) => {
     return members.find(m => m.id === id);
   };
 
-  const handleToggleComplete = (event: CalendarEvent) => {
-    Taro.showToast({
-      title: event.status === 'completed' ? '已取消完成' : '已标记完成',
-      icon: 'success'
-    });
+  const handleToggleComplete = (event: CalendarEvent, e: any) => {
+    e.stopPropagation();
+    toggleEventComplete(event.id);
   };
 
   const handleEventClick = (event: CalendarEvent) => {
@@ -144,7 +140,7 @@ const TodoPage: React.FC = () => {
                 <View
                   key={event.id}
                   className={`${styles.todoCard} ${event.status === 'completed' ? styles.completed : ''}`}
-                  style={{ '--todo-color': color, '--tag-color': color } as React.CSSProperties}
+                  style={{ '--todo-color': color } as React.CSSProperties}
                   onClick={() => handleEventClick(event)}
                 >
                   {progress && (
@@ -159,10 +155,7 @@ const TodoPage: React.FC = () => {
                   <View className={styles.todoHeader}>
                     <View
                       className={`${styles.checkbox} ${event.status === 'completed' ? styles.checked : ''}`}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleToggleComplete(event);
-                      }}
+                      onClick={(e) => handleToggleComplete(event, e)}
                     >
                       {event.status === 'completed' && <Text className={styles.checkMark}>✓</Text>}
                     </View>
@@ -172,7 +165,7 @@ const TodoPage: React.FC = () => {
                       <View className={styles.todoMeta}>
                         <Text
                           className={styles.todoTag}
-                          style={{ '--tag-color': color, '--tag-color-rgb': hexToRgb(color) } as React.CSSProperties}
+                          style={{ color: color } as React.CSSProperties}
                         >
                           {getCategoryLabel(event.category)}
                         </Text>
@@ -189,7 +182,7 @@ const TodoPage: React.FC = () => {
                           <View className={styles.progressBar}>
                             <View
                               className={styles.progress}
-                              style={{ width: `${progress.percentage}%`, '--progress-color': color } as React.CSSProperties}
+                              style={{ width: `${progress.percentage}%`, backgroundColor: color } as React.CSSProperties}
                             />
                           </View>
                           <Text className={styles.progressText}>
@@ -232,12 +225,5 @@ const TodoPage: React.FC = () => {
     </View>
   );
 };
-
-function hexToRgb(hex: string): string {
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-  return result
-    ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
-    : '0, 0, 0';
-}
 
 export default TodoPage;

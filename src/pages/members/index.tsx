@@ -1,13 +1,20 @@
 import React, { useState } from 'react';
-import { View, Text, Image } from '@tarojs/components';
+import { View, Text, Image, Input } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
 import { FamilyMember } from '../../types';
-import { mockMembers, mockEvents } from '../../data/mockData';
+import { useApp } from '../../store/AppContext';
 
 const MembersPage: React.FC = () => {
-  const [members] = useState<FamilyMember[]>(mockMembers);
-  const [events] = useState(mockEvents);
+  const { members, events, addMember } = useApp();
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [newMemberName, setNewMemberName] = useState('');
+  const [newMemberBirthday, setNewMemberBirthday] = useState('');
+
+  const memberColors = [
+    '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4',
+    '#FFEAA7', '#DDA0DD', '#98D8C8', '#F7DC6F'
+  ];
 
   const getUpcomingBirthdays = () => {
     const today = new Date();
@@ -35,7 +42,8 @@ const MembersPage: React.FC = () => {
   };
 
   const getMemberEventsCount = (memberId: string) => {
-    return events.filter(e => e.memberIds.includes(memberId) && e.date >= new Date().toISOString().split('T')[0]).length;
+    const today = new Date().toISOString().split('T')[0];
+    return events.filter(e => e.memberIds.includes(memberId) && e.date >= today).length;
   };
 
   const getTotalUpcomingEvents = () => {
@@ -55,9 +63,32 @@ const MembersPage: React.FC = () => {
   };
 
   const handleAddMember = () => {
+    if (!newMemberName.trim()) {
+      Taro.showToast({
+        title: '请输入成员称呼',
+        icon: 'none'
+      });
+      return;
+    }
+
+    const randomColor = memberColors[Math.floor(Math.random() * memberColors.length)];
+    const newMember: FamilyMember = {
+      id: `member-${Date.now()}`,
+      name: newMemberName.trim(),
+      avatar: `https://picsum.photos/200/200?random=${Date.now()}`,
+      color: randomColor,
+      role: 'member',
+      birthday: newMemberBirthday || undefined
+    };
+
+    addMember(newMember);
+    setShowAddModal(false);
+    setNewMemberName('');
+    setNewMemberBirthday('');
+
     Taro.showToast({
-      title: '添加成员开发中',
-      icon: 'none'
+      title: '成员添加成功',
+      icon: 'success'
     });
   };
 
@@ -78,7 +109,7 @@ const MembersPage: React.FC = () => {
             <Text className={styles.groupName}>幸福一家</Text>
             <Text className={styles.memberCount}>共 {members.length} 位成员</Text>
           </View>
-          <View className={styles.addBtn} onClick={handleAddMember}>
+          <View className={styles.addBtn} onClick={() => setShowAddModal(true)}>
             + 添加成员
           </View>
         </View>
@@ -134,7 +165,7 @@ const MembersPage: React.FC = () => {
           </View>
         ))}
 
-        <View className={styles.addMemberCard} onClick={handleAddMember}>
+        <View className={styles.addMemberCard} onClick={() => setShowAddModal(true)}>
           <Text className={styles.addIcon}>+</Text>
           <Text className={styles.addText}>添加新成员</Text>
         </View>
@@ -160,6 +191,44 @@ const MembersPage: React.FC = () => {
               </View>
             </View>
           ))}
+        </View>
+      )}
+
+      {showAddModal && (
+        <View className={styles.modal}>
+          <View className={styles.modalContent}>
+            <Text className={styles.modalTitle}>添加家庭成员</Text>
+
+            <View className={styles.formGroup}>
+              <Text className={styles.label}>成员称呼 *</Text>
+              <Input
+                className={styles.input}
+                placeholder="请输入成员称呼"
+                value={newMemberName}
+                onInput={(e) => setNewMemberName(e.detail.value)}
+              />
+            </View>
+
+            <View className={styles.formGroup}>
+              <Text className={styles.label}>生日日期</Text>
+              <Input
+                className={styles.input}
+                type="date"
+                value={newMemberBirthday}
+                onInput={(e) => setNewMemberBirthday(e.detail.value)}
+                placeholder="选择生日日期（可选）"
+              />
+            </View>
+
+            <View className={styles.modalButtons}>
+              <View className={styles.cancelBtn} onClick={() => setShowAddModal(false)}>
+                取消
+              </View>
+              <View className={styles.confirmBtn} onClick={handleAddMember}>
+                添加
+              </View>
+            </View>
+          </View>
         </View>
       )}
     </View>

@@ -108,6 +108,9 @@
 .infoContent {
   flex: 1;
   min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .infoLabel {
@@ -119,6 +122,22 @@
 .infoValue {
   font-size: $font-size-md;
   color: $color-text-primary;
+}
+
+.toggleBtn {
+  @include button-reset;
+  padding: 12rpx 24rpx;
+  background: $color-bg-hover;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  color: $color-primary;
+  transition: all $transition-base;
+  flex-shrink: 0;
+
+  &:active {
+    opacity: 0.8;
+    transform: scale(0.95);
+  }
 }
 
 .memberRow {
@@ -155,6 +174,13 @@
 .memberRole {
   font-size: $font-size-sm;
   color: $color-text-tertiary;
+}
+
+.emptyText {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  text-align: center;
+  padding: 32rpx 0;
 }
 
 .checklistSection {

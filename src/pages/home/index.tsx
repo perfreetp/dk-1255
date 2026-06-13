@@ -2,14 +2,13 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
-import { CalendarEvent, FamilyMember } from '../../types';
-import { mockEvents, mockMembers } from '../../data/mockData';
+import { CalendarEvent } from '../../types';
+import { useApp } from '../../store/AppContext';
 
 const HomePage: React.FC = () => {
+  const { events, members } = useApp();
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<string>('');
-  const [events] = useState<CalendarEvent[]>(mockEvents);
-  const [members] = useState<FamilyMember[]>(mockMembers);
 
   useEffect(() => {
     const today = new Date();
@@ -33,13 +32,11 @@ const HomePage: React.FC = () => {
 
     const days: Array<{ date: Date | null; dateStr: string }> = [];
 
-    // 填充上月的空白
     for (let i = 0; i < startWeekday; i++) {
       const prevDate = new Date(year, month, -startWeekday + i + 1);
       days.push({ date: null, dateStr: '' });
     }
 
-    // 填充当月的日期
     for (let i = 1; i <= daysInMonth; i++) {
       const date = new Date(year, month, i);
       days.push({ date, dateStr: formatDate(date) });
@@ -104,7 +101,7 @@ const HomePage: React.FC = () => {
     return `${month}月${day}日 ${weekDay}`;
   };
 
-  const getMemberById = (id: string): FamilyMember | undefined => {
+  const getMemberById = (id: string) => {
     return members.find(m => m.id === id);
   };
 

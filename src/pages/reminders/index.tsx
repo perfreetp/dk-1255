@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, Image } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
-import { ReminderRecord, FamilyMember } from '../../types';
-import { mockReminders } from '../../data/mockData';
+import { ReminderRecord } from '../../types';
+import { useApp } from '../../store/AppContext';
 
 const RemindersPage: React.FC = () => {
-  const [reminders] = useState<ReminderRecord[]>(mockReminders);
+  const { reminders, events } = useApp();
   const [activeTab, setActiveTab] = useState<'pending' | 'sent'>('pending');
 
   const filteredReminders = reminders.filter(r => {

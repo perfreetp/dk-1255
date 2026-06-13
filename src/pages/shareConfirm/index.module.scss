@@ -4,6 +4,7 @@
   min-height: 100vh;
   background: $color-bg-page;
   padding: $spacing-lg $page-padding;
+  padding-bottom: 180rpx;
 }
 
 .card {
@@ -99,7 +100,6 @@
   font-size: $font-size-md;
   color: $color-text-primary;
   box-sizing: border-box;
-  margin-bottom: $spacing-md;
 
   &::placeholder {
     color: $color-text-tertiary;
@@ -116,10 +116,17 @@
   color: $color-text-primary;
   box-sizing: border-box;
   resize: none;
+  margin-top: 16rpx;
 
   &::placeholder {
     color: $color-text-tertiary;
   }
+}
+
+.errorText {
+  font-size: $font-size-sm;
+  color: $color-error;
+  margin-top: 8rpx;
 }
 
 .bottomBar {
