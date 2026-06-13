@@ -140,6 +140,13 @@
   margin-bottom: $spacing-lg;
 }
 
+.subsectionTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-secondary;
+  margin: 24rpx 0 16rpx;
+}
+
 .todoCard {
   background: $color-bg-card;
   border-radius: $radius-lg;
@@ -167,11 +174,6 @@
 
   &.completed {
     opacity: 0.6;
-
-    .todoTitle {
-      text-decoration: line-through;
-      color: $color-text-tertiary;
-    }
   }
 }
 
@@ -219,6 +221,11 @@
   color: $color-text-primary;
   margin-bottom: 8rpx;
   @include text-ellipsis;
+
+  &.completedTitle {
+    text-decoration: line-through;
+    color: $color-text-tertiary;
+  }
 }
 
 .todoMeta {

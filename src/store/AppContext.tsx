@@ -1,11 +1,12 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { CalendarEvent, FamilyMember, ReminderRecord } from '../types';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
+import { CalendarEvent, FamilyMember, ReminderRecord, FamilyGroup } from '../types';
 import { mockEvents, mockMembers, mockReminders } from '../data/mockData';
 
 interface AppState {
   events: CalendarEvent[];
   members: FamilyMember[];
   reminders: ReminderRecord[];
+  familyGroup: FamilyGroup;
   addEvent: (event: CalendarEvent) => void;
   updateEvent: (eventId: string, updates: Partial<CalendarEvent>) => void;
   deleteEvent: (eventId: string) => void;
@@ -13,6 +14,7 @@ interface AppState {
   addMember: (member: FamilyMember) => void;
   updateMember: (memberId: string, updates: Partial<FamilyMember>) => void;
   deleteMember: (memberId: string) => void;
+  updateFamilyGroup: (updates: Partial<FamilyGroup>) => void;
 }
 
 const AppContext = createContext<AppState | undefined>(undefined);
@@ -21,6 +23,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [events, setEvents] = useState<CalendarEvent[]>(mockEvents);
   const [members, setMembers] = useState<FamilyMember[]>(mockMembers);
   const [reminders, setReminders] = useState<ReminderRecord[]>(mockReminders);
+  const [familyGroup, setFamilyGroup] = useState<FamilyGroup>({
+    id: 'family-1',
+    name: '幸福一家',
+    members: mockMembers,
+    createdAt: new Date().toISOString()
+  });
 
   const addEvent = (event: CalendarEvent) => {
     setEvents(prev => [event, ...prev]);
@@ -67,6 +75,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const addMember = (member: FamilyMember) => {
     setMembers(prev => [...prev, member]);
+    setFamilyGroup(prev => ({
+      ...prev,
+      members: [...prev.members, member]
+    }));
   };
 
   const updateMember = (memberId: string, updates: Partial<FamilyMember>) => {
@@ -75,10 +87,24 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         member.id === memberId ? { ...member, ...updates } : member
       )
     );
+    setFamilyGroup(prev => ({
+      ...prev,
+      members: prev.members.map(m =>
+        m.id === memberId ? { ...m, ...updates } : m
+      )
+    }));
   };
 
   const deleteMember = (memberId: string) => {
     setMembers(prev => prev.filter(member => member.id !== memberId));
+    setFamilyGroup(prev => ({
+      ...prev,
+      members: prev.members.filter(m => m.id !== memberId)
+    }));
+  };
+
+  const updateFamilyGroup = (updates: Partial<FamilyGroup>) => {
+    setFamilyGroup(prev => ({ ...prev, ...updates }));
   };
 
   return (
@@ -87,13 +113,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         events,
         members,
         reminders,
+        familyGroup,
         addEvent,
         updateEvent,
         deleteEvent,
         toggleEventComplete,
         addMember,
         updateMember,
-        deleteMember
+        deleteMember,
+        updateFamilyGroup
       }}
     >
       {children}

@@ -8,6 +8,7 @@ import { useApp } from '../../store/AppContext';
 const TodoPage: React.FC = () => {
   const { events, members, toggleEventComplete } = useApp();
   const [selectedDayIndex, setSelectedDayIndex] = useState(0);
+  const [showCompleted, setShowCompleted] = useState(false);
 
   const getWeekDays = () => {
     const days = [];
@@ -32,11 +33,12 @@ const TodoPage: React.FC = () => {
   const todayDateStr = weekDays[selectedDayIndex].dateStr;
 
   const todayEvents = useMemo(() => {
-    return events.filter(event => {
-      const eventDate = event.date;
-      return eventDate === todayDateStr && event.status === 'pending';
-    });
+    const dayEvents = events.filter(event => event.date === todayDateStr);
+    return dayEvents;
   }, [events, todayDateStr]);
+
+  const pendingEvents = todayEvents.filter(e => e.status === 'pending');
+  const completedEvents = todayEvents.filter(e => e.status === 'completed');
 
   const getMemberById = (id: string) => {
     return members.find(m => m.id === id);
@@ -95,6 +97,87 @@ const TodoPage: React.FC = () => {
     return { completed, total, percentage };
   };
 
+  const renderEventCard = (event: CalendarEvent) => {
+    const progress = getChecklistProgress(event);
+    const color = getCategoryColor(event.category);
+
+    return (
+      <View
+        key={event.id}
+        className={`${styles.todoCard} ${event.status === 'completed' ? styles.completed : ''}`}
+        style={{ '--todo-color': color } as React.CSSProperties}
+        onClick={() => handleEventClick(event)}
+      >
+        {progress && (
+          <View
+            className={styles.checklistBadge}
+            style={{ backgroundColor: color }}
+          >
+            {progress.completed}/{progress.total}
+          </View>
+        )}
+
+        <View className={styles.todoHeader}>
+          <View
+            className={`${styles.checkbox} ${event.status === 'completed' ? styles.checked : ''}`}
+            onClick={(e) => handleToggleComplete(event, e)}
+          >
+            {event.status === 'completed' && <Text className={styles.checkMark}>✓</Text>}
+          </View>
+
+          <View className={styles.todoContent}>
+            <Text className={`${styles.todoTitle} ${event.status === 'completed' ? styles.completedTitle : ''}`}>
+              {event.title}
+            </Text>
+            <View className={styles.todoMeta}>
+              <Text
+                className={styles.todoTag}
+                style={{ color: event.status === 'completed' ? '#95A5A6' : color } as React.CSSProperties}
+              >
+                {getCategoryLabel(event.category)}
+              </Text>
+              {event.startTime && (
+                <Text className={styles.todoTime}>{event.startTime}</Text>
+              )}
+              {event.location && (
+                <Text className={styles.todoTime}>📍 {event.location}</Text>
+              )}
+            </View>
+
+            {progress && (
+              <>
+                <View className={styles.progressBar}>
+                  <View
+                    className={styles.progress}
+                    style={{ width: `${progress.percentage}%`, backgroundColor: color } as React.CSSProperties}
+                  />
+                </View>
+                <Text className={styles.progressText}>
+                  完成 {progress.completed}/{progress.total} 项
+                </Text>
+              </>
+            )}
+          </View>
+
+          {event.memberIds.length > 0 && (
+            <View className={styles.memberAvatars}>
+              {event.memberIds.slice(0, 2).map((memberId) => {
+                const member = getMemberById(memberId);
+                return member ? (
+                  <Image
+                    key={memberId}
+                    src={member.avatar}
+                    className={styles.todoMember}
+                  />
+                ) : null;
+              })}
+            </View>
+          )}
+        </View>
+      </View>
+    );
+  };
+
   return (
     <View className={styles.container}>
       <View className={styles.header}>
@@ -124,92 +207,26 @@ const TodoPage: React.FC = () => {
           <Text className={styles.sectionTitle}>
             {selectedDayIndex === 0 ? '今日待办' : `${weekDays[selectedDayIndex].dayName}待办`}
           </Text>
-          <View className={styles.filterBtn}>
-            <Text>筛选</Text>
-            <Text>▼</Text>
+          <View className={styles.filterBtn} onClick={() => setShowCompleted(!showCompleted)}>
+            <Text>{showCompleted ? '隐藏已完成' : '显示已完成'}</Text>
           </View>
         </View>
 
         {todayEvents.length > 0 ? (
           <View className={styles.todoList}>
-            {todayEvents.map((event) => {
-              const progress = getChecklistProgress(event);
-              const color = getCategoryColor(event.category);
+            {pendingEvents.length > 0 && (
+              <>
+                <Text className={styles.subsectionTitle}>待完成 ({pendingEvents.length})</Text>
+                {pendingEvents.map(renderEventCard)}
+              </>
+            )}
 
-              return (
-                <View
-                  key={event.id}
-                  className={`${styles.todoCard} ${event.status === 'completed' ? styles.completed : ''}`}
-                  style={{ '--todo-color': color } as React.CSSProperties}
-                  onClick={() => handleEventClick(event)}
-                >
-                  {progress && (
-                    <View
-                      className={styles.checklistBadge}
-                      style={{ backgroundColor: color }}
-                    >
-                      {progress.completed}/{progress.total}
-                    </View>
-                  )}
-
-                  <View className={styles.todoHeader}>
-                    <View
-                      className={`${styles.checkbox} ${event.status === 'completed' ? styles.checked : ''}`}
-                      onClick={(e) => handleToggleComplete(event, e)}
-                    >
-                      {event.status === 'completed' && <Text className={styles.checkMark}>✓</Text>}
-                    </View>
-
-                    <View className={styles.todoContent}>
-                      <Text className={styles.todoTitle}>{event.title}</Text>
-                      <View className={styles.todoMeta}>
-                        <Text
-                          className={styles.todoTag}
-                          style={{ color: color } as React.CSSProperties}
-                        >
-                          {getCategoryLabel(event.category)}
-                        </Text>
-                        {event.startTime && (
-                          <Text className={styles.todoTime}>{event.startTime}</Text>
-                        )}
-                        {event.location && (
-                          <Text className={styles.todoTime}>📍 {event.location}</Text>
-                        )}
-                      </View>
-
-                      {progress && (
-                        <>
-                          <View className={styles.progressBar}>
-                            <View
-                              className={styles.progress}
-                              style={{ width: `${progress.percentage}%`, backgroundColor: color } as React.CSSProperties}
-                            />
-                          </View>
-                          <Text className={styles.progressText}>
-                            完成 {progress.completed}/{progress.total} 项
-                          </Text>
-                        </>
-                      )}
-                    </View>
-
-                    {event.memberIds.length > 0 && (
-                      <View className={styles.memberAvatars}>
-                        {event.memberIds.slice(0, 2).map((memberId) => {
-                          const member = getMemberById(memberId);
-                          return member ? (
-                            <Image
-                              key={memberId}
-                              src={member.avatar}
-                              className={styles.todoMember}
-                            />
-                          ) : null;
-                        })}
-                      </View>
-                    )}
-                  </View>
-                </View>
-              );
-            })}
+            {showCompleted && completedEvents.length > 0 && (
+              <>
+                <Text className={styles.subsectionTitle}>已完成 ({completedEvents.length})</Text>
+                {completedEvents.map(renderEventCard)}
+              </>
+            )}
           </View>
         ) : (
           <View className={styles.emptyState}>

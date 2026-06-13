@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { View, Text, Image, Input } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
-import { FamilyMember, FamilyGroup } from '../../types';
+import { FamilyMember } from '../../types';
 import { useApp } from '../../store/AppContext';
 
 const MembersPage: React.FC = () => {
-  const { members, events, reminders, addMember, addEvent } = useApp();
+  const { familyGroup, members, events, addMember, addEvent, updateFamilyGroup } = useApp();
   const [showAddGroupModal, setShowAddGroupModal] = useState(false);
   const [showAddMemberModal, setShowAddMemberModal] = useState(false);
   const [newGroupName, setNewGroupName] = useState('');
@@ -77,6 +77,8 @@ const MembersPage: React.FC = () => {
       });
       return;
     }
+
+    updateFamilyGroup({ name: newGroupName.trim() });
 
     Taro.showToast({
       title: `已创建"${newGroupName}"家庭群`,
@@ -151,7 +153,7 @@ const MembersPage: React.FC = () => {
       <View className={styles.header}>
         <View className={styles.headerTop}>
           <View>
-            <Text className={styles.groupName}>幸福一家</Text>
+            <Text className={styles.groupName}>{familyGroup.name}</Text>
             <Text className={styles.memberCount}>共 {members.length} 位成员</Text>
           </View>
           <View className={styles.headerActions}>
