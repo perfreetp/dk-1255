@@ -1,0 +1,324 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  background: linear-gradient(180deg, #fff5f5 0%, $color-bg-page 100%);
+  padding-bottom: 120rpx;
+}
+
+.header {
+  padding: 48rpx $page-padding 32rpx;
+  background: linear-gradient(135deg, $color-primary 0%, #ff8787 100%);
+  border-radius: 0 0 40rpx 40rpx;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 300rpx;
+    height: 300rpx;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 200rpx;
+    height: 200rpx;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+  }
+}
+
+.headerContent {
+  position: relative;
+  z-index: 1;
+}
+
+.greeting {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-semibold;
+  color: $color-text-white;
+  margin-bottom: 8rpx;
+}
+
+.date {
+  font-size: $font-size-md;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.calendarContainer {
+  margin: -40rpx $page-padding 0;
+  position: relative;
+  z-index: 2;
+}
+
+.calendarCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.monthHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+
+  .monthTitle {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+  }
+
+  .navButtons {
+    display: flex;
+    gap: 16rpx;
+  }
+
+  .navBtn {
+    @include button-reset;
+    width: 64rpx;
+    height: 64rpx;
+    background: $color-bg-hover;
+    border-radius: $radius-md;
+    font-size: $font-size-lg;
+    color: $color-text-secondary;
+    transition: all $transition-base;
+
+    &:active {
+      opacity: 0.8;
+      transform: scale(0.95);
+    }
+  }
+}
+
+.weekdayRow {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 16rpx;
+
+  .weekday {
+    text-align: center;
+    font-size: $font-size-sm;
+    color: $color-text-tertiary;
+    font-weight: $font-weight-medium;
+  }
+}
+
+.daysGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8rpx;
+}
+
+.dayCell {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-md;
+  position: relative;
+  transition: all $transition-base;
+
+  &.empty {
+    background: transparent;
+  }
+
+  &.today {
+    background: $color-primary;
+
+    .dayText {
+      color: $color-text-white;
+      font-weight: $font-weight-semibold;
+    }
+  }
+
+  &.selected {
+    background: $calendar-selected;
+
+    .dayText {
+      color: $color-primary;
+      font-weight: $font-weight-semibold;
+    }
+  }
+
+  &.otherMonth {
+    opacity: 0.4;
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.dayText {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+}
+
+.eventDots {
+  display: flex;
+  gap: 4rpx;
+  margin-top: 4rpx;
+  height: 8rpx;
+}
+
+.eventDot {
+  width: 8rpx;
+  height: 8rpx;
+  border-radius: 50%;
+}
+
+.eventsSection {
+  margin: $spacing-lg $page-padding 0;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+
+  .sectionTitle {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+  }
+
+  .viewAll {
+    font-size: $font-size-sm;
+    color: $color-primary;
+  }
+}
+
+.eventCard {
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  margin-bottom: $spacing-sm;
+  box-shadow: $shadow-card;
+  position: relative;
+  overflow: hidden;
+  transition: all $transition-base;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 8rpx;
+    background: var(--event-color);
+  }
+
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+.eventHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
+}
+
+.eventTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  flex: 1;
+  @include text-ellipsis;
+}
+
+.eventTime {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-left: 16rpx;
+  white-space: nowrap;
+}
+
+.eventMeta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.eventLocation {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+}
+
+.memberAvatars {
+  display: flex;
+  margin-left: auto;
+}
+
+.memberAvatar {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: $radius-round;
+  border: 3rpx solid $color-bg-card;
+  margin-left: -16rpx;
+
+  &:first-child {
+    margin-left: 0;
+  }
+}
+
+.emptyState {
+  text-align: center;
+  padding: $spacing-xl 0;
+
+  .emptyIcon {
+    font-size: 120rpx;
+    margin-bottom: $spacing-md;
+    opacity: 0.5;
+  }
+
+  .emptyText {
+    font-size: $font-size-md;
+    color: $color-text-tertiary;
+  }
+}
+
+.fab {
+  position: fixed;
+  right: $page-padding;
+  bottom: 160rpx;
+  width: 112rpx;
+  height: 112rpx;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-dark 100%);
+  border-radius: $radius-round;
+  box-shadow: 0 8rpx 24rpx rgba($color-primary, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.9);
+    box-shadow: 0 4rpx 16rpx rgba($color-primary, 0.3);
+  }
+
+  .fabText {
+    font-size: 56rpx;
+    color: $color-text-white;
+    font-weight: 300;
+  }
+}

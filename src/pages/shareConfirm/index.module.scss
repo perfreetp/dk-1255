@@ -1,0 +1,163 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding: $spacing-lg $page-padding;
+}
+
+.card {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+  margin-bottom: $spacing-lg;
+}
+
+.eventPreview {
+  position: relative;
+  overflow: hidden;
+  padding: $spacing-lg;
+  background: linear-gradient(135deg, var(--event-color) 0%, var(--event-color-light) 100%);
+  border-radius: $radius-md;
+  margin-bottom: $spacing-lg;
+}
+
+.eventTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-white;
+  margin-bottom: 8rpx;
+}
+
+.eventTime {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.shareSection {
+  margin-bottom: $spacing-lg;
+}
+
+.sectionTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+}
+
+.shareOption {
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 24rpx;
+  background: $color-bg-hover;
+  border-radius: $radius-md;
+  margin-bottom: 12rpx;
+  transition: all $transition-base;
+
+  &.active {
+    background: rgba($color-primary, 0.1);
+    border: 2rpx solid $color-primary;
+  }
+
+  &:active {
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.optionIcon {
+  font-size: 48rpx;
+}
+
+.optionContent {
+  flex: 1;
+}
+
+.optionTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-primary;
+  margin-bottom: 4rpx;
+}
+
+.optionDesc {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.input {
+  width: 100%;
+  padding: 24rpx;
+  background: $color-bg-hover;
+  border-radius: $radius-md;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  box-sizing: border-box;
+  margin-bottom: $spacing-md;
+
+  &::placeholder {
+    color: $color-text-tertiary;
+  }
+}
+
+.messageInput {
+  width: 100%;
+  min-height: 160rpx;
+  padding: 24rpx;
+  background: $color-bg-hover;
+  border-radius: $radius-md;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  box-sizing: border-box;
+  resize: none;
+
+  &::placeholder {
+    color: $color-text-tertiary;
+  }
+}
+
+.bottomBar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24rpx $page-padding;
+  background: $color-bg-card;
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.05);
+  display: flex;
+  gap: $spacing-sm;
+  z-index: 100;
+}
+
+.btn {
+  @include button-reset;
+  height: $button-height-lg;
+  border-radius: $radius-button;
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  flex: 1;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+.btnSecondary {
+  @extend .btn;
+  background: $color-bg-hover;
+  color: $color-text-secondary;
+}
+
+.btnPrimary {
+  @extend .btn;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-dark 100%);
+  color: $color-text-white;
+}

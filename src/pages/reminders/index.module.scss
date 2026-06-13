@@ -1,0 +1,288 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 120rpx;
+}
+
+.header {
+  padding: 48rpx $page-padding 32rpx;
+  background: linear-gradient(135deg, $color-primary 0%, #ff8787 100%);
+  border-radius: 0 0 40rpx 40rpx;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 300rpx;
+    height: 300rpx;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -30%;
+    left: -10%;
+    width: 200rpx;
+    height: 200rpx;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 50%;
+  }
+}
+
+.headerContent {
+  position: relative;
+  z-index: 1;
+}
+
+.title {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  margin-bottom: 8rpx;
+}
+
+.subtitle {
+  font-size: $font-size-md;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.statsRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16rpx;
+  margin-top: 32rpx;
+}
+
+.statCard {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: $radius-md;
+  padding: 20rpx;
+  text-align: center;
+  backdrop-filter: blur(10px);
+
+  .statValue {
+    font-size: $font-size-xl;
+    font-weight: $font-weight-bold;
+    color: $color-text-white;
+    display: block;
+  }
+
+  .statLabel {
+    font-size: $font-size-xs;
+    color: rgba(255, 255, 255, 0.8);
+    margin-top: 4rpx;
+    display: block;
+  }
+}
+
+.tabList {
+  margin: -40rpx $page-padding 0;
+  position: relative;
+  z-index: 2;
+}
+
+.tabBar {
+  display: flex;
+  background: $color-bg-card;
+  border-radius: $radius-lg $radius-lg 0 0;
+  padding: 0 16rpx;
+  box-shadow: $shadow-card;
+}
+
+.tabItem {
+  flex: 1;
+  padding: 24rpx 16rpx;
+  text-align: center;
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  position: relative;
+  transition: all $transition-base;
+
+  &.active {
+    color: $color-primary;
+    font-weight: $font-weight-semibold;
+
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 48rpx;
+      height: 6rpx;
+      background: $color-primary;
+      border-radius: 3rpx;
+    }
+  }
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.reminderList {
+  background: $color-bg-card;
+  border-radius: 0 0 $radius-lg $radius-lg;
+  padding: $spacing-md;
+  box-shadow: $shadow-card;
+  min-height: 400rpx;
+}
+
+.reminderCard {
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+  margin-bottom: $spacing-sm;
+  position: relative;
+  overflow: hidden;
+  transition: all $transition-base;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 8rpx;
+    background: var(--reminder-color);
+  }
+
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+
+  &.sent {
+    opacity: 0.7;
+  }
+}
+
+.reminderHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
+}
+
+.reminderTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  flex: 1;
+  @include text-ellipsis;
+}
+
+.reminderStatus {
+  padding: 4rpx 12rpx;
+  border-radius: $radius-sm;
+  font-size: $font-size-xs;
+  margin-left: 16rpx;
+
+  &.pending {
+    background: rgba($color-warning, 0.1);
+    color: $color-warning;
+  }
+
+  &.sent {
+    background: rgba($color-success, 0.1);
+    color: $color-success;
+  }
+
+  &.dismissed {
+    background: rgba($color-text-tertiary, 0.1);
+    color: $color-text-tertiary;
+  }
+}
+
+.reminderTime {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  margin-bottom: 12rpx;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.reminderMeta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.reminderLocation {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+}
+
+.memberAvatar {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: $radius-round;
+  border: 3rpx solid $color-bg-page;
+  margin-left: -16rpx;
+
+  &:first-child {
+    margin-left: 0;
+  }
+}
+
+.memberAvatars {
+  display: flex;
+  margin-left: auto;
+}
+
+.actionRow {
+  display: flex;
+  gap: $spacing-sm;
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx solid $color-divider;
+}
+
+.actionBtn {
+  @include button-reset;
+  flex: 1;
+  padding: 16rpx;
+  background: $color-bg-card;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  transition: all $transition-base;
+
+  &:active {
+    opacity: 0.8;
+    transform: scale(0.98);
+  }
+
+  &.primary {
+    background: $color-primary;
+    color: $color-text-white;
+  }
+}
+
+.emptyState {
+  text-align: center;
+  padding: $spacing-xl 0;
+
+  .emptyIcon {
+    font-size: 120rpx;
+    margin-bottom: $spacing-md;
+    opacity: 0.5;
+  }
+
+  .emptyText {
+    font-size: $font-size-md;
+    color: $color-text-tertiary;
+  }
+}

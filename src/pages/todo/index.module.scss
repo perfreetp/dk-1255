@@ -1,0 +1,335 @@
+@use '@/styles/variables.scss' as *;
+
+.container {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 120rpx;
+}
+
+.header {
+  padding: 48rpx $page-padding 32rpx;
+  background: linear-gradient(135deg, $color-primary 0%, #ff8787 100%);
+  border-radius: 0 0 40rpx 40rpx;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 300rpx;
+    height: 300rpx;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+  }
+}
+
+.headerContent {
+  position: relative;
+  z-index: 1;
+}
+
+.title {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  margin-bottom: 8rpx;
+}
+
+.subtitle {
+  font-size: $font-size-md;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.weekNav {
+  margin: -40rpx $page-padding 0;
+  position: relative;
+  z-index: 2;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.weekNavInner {
+  display: flex;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: 16rpx;
+  box-shadow: $shadow-card;
+  gap: 12rpx;
+  min-width: max-content;
+}
+
+.dayItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16rpx 24rpx;
+  border-radius: $radius-md;
+  background: transparent;
+  transition: all $transition-base;
+  min-width: 100rpx;
+
+  &.active {
+    background: $color-primary;
+
+    .dayName {
+      color: $color-text-white;
+    }
+
+    .dayDate {
+      color: $color-text-white;
+      font-weight: $font-weight-semibold;
+    }
+  }
+
+  &:active {
+    opacity: 0.8;
+    transform: scale(0.95);
+  }
+}
+
+.dayName {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  margin-bottom: 4rpx;
+}
+
+.dayDate {
+  font-size: $font-size-lg;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.todoSection {
+  margin: $spacing-lg $page-padding 0;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+
+  .sectionTitle {
+    font-size: $font-size-lg;
+    font-weight: $font-weight-semibold;
+    color: $color-text-primary;
+  }
+
+  .filterBtn {
+    @include button-reset;
+    padding: 12rpx 24rpx;
+    background: $color-bg-hover;
+    border-radius: $radius-button;
+    font-size: $font-size-sm;
+    color: $color-text-secondary;
+    display: flex;
+    align-items: center;
+    gap: 8rpx;
+    transition: all $transition-base;
+
+    &:active {
+      opacity: 0.8;
+      transform: scale(0.95);
+    }
+  }
+}
+
+.todoList {
+  margin-bottom: $spacing-lg;
+}
+
+.todoCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-sm;
+  box-shadow: $shadow-card;
+  position: relative;
+  overflow: hidden;
+  transition: all $transition-base;
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 8rpx;
+    background: var(--todo-color);
+  }
+
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+
+  &.completed {
+    opacity: 0.6;
+
+    .todoTitle {
+      text-decoration: line-through;
+      color: $color-text-tertiary;
+    }
+  }
+}
+
+.todoHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: 16rpx;
+}
+
+.checkbox {
+  width: 48rpx;
+  height: 48rpx;
+  border: 3rpx solid var(--todo-color);
+  border-radius: $radius-sm;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all $transition-base;
+  flex-shrink: 0;
+  background: transparent;
+
+  &.checked {
+    background: var(--todo-color);
+
+    .checkMark {
+      color: $color-text-white;
+      font-size: 28rpx;
+    }
+  }
+
+  &:active {
+    opacity: 0.7;
+    transform: scale(0.95);
+  }
+}
+
+.todoContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.todoTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: 8rpx;
+  @include text-ellipsis;
+}
+
+.todoMeta {
+  display: flex;
+  align-items: center;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.todoTag {
+  display: inline-block;
+  padding: 4rpx 12rpx;
+  background: rgba(var(--tag-color-rgb), 0.1);
+  border-radius: $radius-sm;
+  font-size: $font-size-xs;
+  color: var(--tag-color);
+}
+
+.todoTime {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.todoMember {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: $radius-round;
+  border: 3rpx solid $color-bg-card;
+  margin-left: -16rpx;
+
+  &:first-of-type {
+    margin-left: 0;
+  }
+}
+
+.memberAvatars {
+  display: flex;
+  margin-left: auto;
+}
+
+.progressBar {
+  margin-top: 16rpx;
+  background: $color-bg-hover;
+  border-radius: 8rpx;
+  height: 8rpx;
+  overflow: hidden;
+}
+
+.progress {
+  height: 100%;
+  background: var(--progress-color);
+  border-radius: 8rpx;
+  transition: width $transition-base;
+}
+
+.progressText {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-top: 8rpx;
+  text-align: right;
+}
+
+.emptyState {
+  text-align: center;
+  padding: $spacing-xl 0;
+
+  .emptyIcon {
+    font-size: 120rpx;
+    margin-bottom: $spacing-md;
+    opacity: 0.5;
+  }
+
+  .emptyText {
+    font-size: $font-size-md;
+    color: $color-text-tertiary;
+  }
+}
+
+.fab {
+  position: fixed;
+  right: $page-padding;
+  bottom: 160rpx;
+  width: 112rpx;
+  height: 112rpx;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-dark 100%);
+  border-radius: $radius-round;
+  box-shadow: 0 8rpx 24rpx rgba($color-primary, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  transition: all $transition-base;
+
+  &:active {
+    transform: scale(0.9);
+    box-shadow: 0 4rpx 16rpx rgba($color-primary, 0.3);
+  }
+
+  .fabIcon {
+    font-size: 56rpx;
+    color: $color-text-white;
+  }
+}
+
+.checklistBadge {
+  position: absolute;
+  top: 16rpx;
+  right: 16rpx;
+  padding: 4rpx 12rpx;
+  background: $color-info;
+  border-radius: $radius-sm;
+  font-size: $font-size-xs;
+  color: $color-text-white;
+}
